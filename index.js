@@ -8,13 +8,6 @@ const dotenv = require('dotenv')
 
 const PORT = process.env.NODE_DOCKER_PORT || 8080;
 
-setTimeout(() => {
-    console.log('Server started, waiting');
-}, 10000);
-
-// await new Promise(res => setTimeout(res, 10000));
-
-
 // PostgreSQL pool setup
 const pool = new Pool({
     user: 'postgres',
@@ -162,13 +155,13 @@ app.get('/make-payment/:customer_id/:loan_id', async (req, res) => {
     const paymentData = req.body;
 
     const result = await pool.query('SELECT * FROM loan_data WHERE "Loan ID" = $1', [loanId]);
-    const loanData = result.rows[0];
+    var loanData = result.rows[0];
     var EMIsPaidOnTime = loanData["EMIs paid on Time"];
     EMIsPaidOnTime += 1;
     try {
-        const result = await pool.query('UPDATE loan_data SET "EMIs paid on Time" = $1 WHERE "Loan ID" = $2 RETURNING *',
+        const result2 = await pool.query('UPDATE loan_data SET "EMIs paid on Time" = $1 WHERE "Loan ID" = $2 RETURNING *',
             [EMIsPaidOnTime, loanId]);
-        loanData = result.rows[0];
+        loanData = result2.rows[0];
     } catch (error) {
         res.status(500).json({ message: 'Error making payment', error: error.message });
     }
